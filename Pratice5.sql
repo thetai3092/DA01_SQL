@@ -147,4 +147,15 @@ GROUP BY b.city || ',' || a.country
 ORDER BY SUM(amount) DESC
 LIMIT 1
 
+--fix ex3
+SELECT age_bucket,
+	ROUND(100*sum(CASE WHEN ac.activity_type = 'send'THEN ac.time_spent END) :: DECIMAL 
+  /sum(CASE	WHEN ac.activity_type in ('open','send') THEN ac.time_spent END),2) as send_perc,
+	
+  ROUND(100* sum(CASE WHEN ac.activity_type = 'open' THEN ac.time_spent END) :: DECIMAL /sum(CASE 
+			WHEN ac.activity_type in ('open','send')THEN ac.time_spent END),2) as open_perc
+FROM activities AS ac
+JOIN age_breakdown AS ab ON ac.user_id = ab.user_id
+GROUP BY ab.age_bucket
+
 
