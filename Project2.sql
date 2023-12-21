@@ -95,9 +95,9 @@ WHERE RANK_<=5
 ORDER BY month_year
 
 --Câu 5
-SELECT FORMAT_DATE('%Y-%m-%d',created_at) AS month_year,
-       b.category,
-       ROUND(SUM(a.sale_price),2) as revenue
+SELECT FORMAT_DATE('%Y-%m-%d',created_at) AS dates,
+                               b.category AS product_categorie,
+               ROUND(SUM(a.sale_price),2) AS revenue
 FROM bigquery-public-data.thelook_ecommerce.order_items as a
 JOIN bigquery-public-data.thelook_ecommerce.products as b
 ON a.product_id=b.id
