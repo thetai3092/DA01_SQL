@@ -174,6 +174,7 @@ ROUND(100.00* m3/m1,2) || '%' as m3,
 ROUND(100.00* m4/m1,2) || '%' as m4,
 FROM Customer_cohort
 
+-- Retention Cohort : https://docs.google.com/spreadsheets/d/1KnaOU-ho7pt4H9BWpsh1COD8GgurDBKH-WLSo4XFXZU/edit#gid=0
   /* Tổng quan Retention Cohort cho thấy tỷ lệ khách hàng mới vẫn tăng trưởng đều qua từng tháng nhưng 
 về tỷ lệ giữ chân khách hàng là 1 vấn đề quan trọng cần lưu ý đến. 
 - Tỷ lệ KH quay lại từ năm 2019-2022:
