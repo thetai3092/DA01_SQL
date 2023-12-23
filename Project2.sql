@@ -104,7 +104,81 @@ ON a.product_id=b.id
 WHERE FORMAT_DATE('%Y-%m-%d',a.created_at)BETWEEN '2022-01-15' AND '2022-04-15'
 GROUP BY 1,2
 ORDER BY 1,2
-     
+
+------------------------------------------------------------------------------------------------------------------------------
+--Project 2 III
+--Câu 1: Tạo Metric
+WITH cte AS
+(SELECT FORMAT_DATE('%Y-%m',a.created_at) AS Month,
+        FORMAT_DATE('%Y',a.created_at)    AS Year,  
+        b.category               AS Product_category,
+        ROUND(SUM(sale_price),2) AS TPV,
+        COUNT(c.order_id)        AS TPO,
+        ROUND(SUM(b.cost),2)     AS Total_cost
+FROM bigquery-public-data.thelook_ecommerce.orders      as a 
+JOIN bigquery-public-data.thelook_ecommerce.products    as b ON a.order_id=b.id
+JOIN bigquery-public-data.thelook_ecommerce.order_items as c ON b.id=c.id 
+GROUP BY 1,2,3
+)
+SELECT Month,Year,Product_category,TPV,TPO,
+       ROUND(100.00*(TPV-p_TPV)/p_TPV,2) || '%' AS Revenue_growth ,
+       ROUND(100.00*(TPO-p_TPO)/p_TPO,2) || '%' AS Order_growth,
+       Total_cost,
+       ROUND(TPV-Total_cost,2)              AS Total_profit,
+       ROUND((TPV-Total_cost)/Total_cost,2) AS Profit_to_cost_ratio
+FROM
+(SELECT *,
+LAG(TPV) OVER(PARTITION BY Product_category ORDER BY Month) AS p_TPV,
+LAG(TPO) OVER(PARTITION BY Product_category ORDER BY Month) AS p_TPO
+FROM cte)
+ORDER BY 3,1
+
+-- Câu 2
+WITH Index_ AS
+(SELECT user_id,amount,
+        FORMAT_DATE('%Y-%m',DATE_1) AS cohort_date,
+        created_at,
+        (Extract(YEAR  FROM created_at)  - Extract(YEAR  FROM DATE_1))*12 
+        +Extract(MONTH FROM created_at) - Extract(MONTH FROM DATE_1) +1
+        AS index
+FROM (SELECT user_id, 
+      ROUND(sale_price,2) as amount,
+      MIN(created_at) OVER(PARTITION BY user_id) AS DATE_1,
+      created_at
+      FROM bigquery-public-data.thelook_ecommerce.order_items)),
+  
+     Main_ AS
+(SELECT cohort_date,index,
+        COUNT(DISTINCT user_id) AS user_cnt,
+        ROUND(SUM(amount),2)    AS revenue
+FROM Index_
+GROUP BY cohort_date,index
+ORDER BY index),
+
+    Customer_cohort AS
+(SELECT 
+cohort_date,
+SUM(CASE WHEN index=1 THEN user_cnt else 0 END) as m1,
+SUM(CASE WHEN index=2 THEN user_cnt else 0 END) as m2,
+SUM(CASE WHEN index=3 THEN user_cnt else 0 END) as m3,
+SUM(CASE WHEN index=4 THEN user_cnt else 0 END) as m4 
+FROM Main_
+GROUP BY 1
+ORDER BY 1)
+------------- Retention Cohort
+SELECT 
+cohort_date,
+ROUND(100.00* m1/m1,2) || '%' as m1,
+ROUND(100.00* m2/m1,2) || '%' as m2,
+ROUND(100.00* m3/m1,2) || '%' as m3,
+ROUND(100.00* m4/m1,2) || '%' as m4,
+FROM Customer_cohort
+
+
+
+ 
+
+
 
 
 
