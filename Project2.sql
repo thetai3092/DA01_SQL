@@ -133,7 +133,7 @@ LAG(TPO) OVER(PARTITION BY Product_category ORDER BY Month) AS p_TPO
 FROM cte)
 ORDER BY 3,1
 
--- Câu 2
+-- Câu 2: Tạo Retention Cohort Analysis.
 WITH Index_ AS
 (SELECT user_id,amount,
         FORMAT_DATE('%Y-%m',DATE_1) AS cohort_date,
@@ -155,7 +155,7 @@ FROM Index_
 GROUP BY cohort_date,index
 ORDER BY index),
 
-    Customer_cohort AS
+     Customer_cohort AS
 (SELECT 
 cohort_date,
 SUM(CASE WHEN index=1 THEN user_cnt else 0 END) as m1,
@@ -173,6 +173,28 @@ ROUND(100.00* m2/m1,2) || '%' as m2,
 ROUND(100.00* m3/m1,2) || '%' as m3,
 ROUND(100.00* m4/m1,2) || '%' as m4,
 FROM Customer_cohort
+
+  /* Tổng quan Retention Cohort cho thấy tỷ lệ khách hàng mới vẫn tăng trưởng đều qua từng tháng nhưng 
+về tỷ lệ giữ chân khách hàng là 1 vấn đề quan trọng cần lưu ý đến. 
+- Tỷ lệ KH quay lại từ năm 2019-2022:
+Tỷ lệ khách hàng tiếp tục sau 1 tháng sử dụng đạt Trung bình 4.2%. 
+                          sau 3 tháng sử dụng đạt Trung bình 2.4% 
+- Giai đoạn 2023 thấy được sự cải thiện,tập trung hơn về khách hàng trung thành.
+Trung bình tăng lên mức 9.5% sau 1 tháng và 5% sau 3 tháng
+Cao nhất tại Tháng 11/2023 đạt 16.94%
+
+  Qua đó thấy được tình hình doanh nghiệp đáng báo động trong tỷ lệ giữ chân khách hàng dù làm được việc
+tiếp cận, thu hút và luôn duy trì được lượng khách hàng mới,nhưng không đem lại trải nghiệm dịch vụ tốt 
+dẫn đến 3 năm đầu không đem lại nhiều hiệu quả về mặt truyền thông.
+
+  Cần thay đổi ,cải thiện, hiểu và ưu tiên hơn về khách hàng trung thành để tránh việc tốn nhiều chi phí cho 
+Marketing nhưng không đem lại lợi ích cho doanh nghiệp. 
+  Phân tích,xem xét về mặt quy trình, cải thiện giao diện,khảo sát, tìm hiểu nguyên nhân nhằm nâng cao 
+trải nghiệm của người dùng cho nhiều tệp người khác nhau và nâng cao bổ sung chất lượng sản phẩm phù hợp 
+chi phí và ưu đãi đồng thời loại bỏ các sản phẩm,dịch vụ chưa phù hợp với nhu cầu của khách hàng.
+
+
+
 
 
 
